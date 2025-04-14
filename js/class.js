@@ -10,11 +10,11 @@ async function main() {
         fs.writeFileSync("./test2.html" , html)
         const $ = load(html)
         const final  = $(".red").text()
-        
+
         console.log(final);
 
     }catch(error){
-        console.log(error);
+        console.log("message error" , error);
     }
     
 }

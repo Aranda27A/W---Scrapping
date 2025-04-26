@@ -1,53 +1,54 @@
 // in a dinamic way 
 import axios from "axios";
 import { load } from "cheerio";
-import { table } from "console";
 import fs from "fs"
 
 async function Main() {
     try {
-        const website = await axios.get("https://codingwithstefan.com/table-example");
+        const website = await axios.get("https://www.worldometers.info/world-population/population-by-country/");
         const html  = website.data
         
         fs.writeFileSync("./Extract.html" , html)
         const $ = load(html)  
-        const object = [] 
-        const titles = [] 
+        const DataBase = [] 
+         const titles = [] 
         $("tr").each((index,Element)=> {
             
-            if (index === 0){
-                const ths = $(Element).find("th")
-                ths.each((index, Element)=> {
-                    titles.push(
-                        $(Element)
-                                 .text()
-                                 .toLowerCase()
+        
+            
+             if (index === 0){
+                 const ths = $(Element).find("th")
+                 ths.each((index, Element)=> {
+                     titles.push(
+                         $(Element)
+                                  .text()
+                                  .toLowerCase()
                     );
                 });
 
 
-            return true
+             return true
 
-            } 
+             } 
 
-            const tds = $(Element).find("td")
-            const tableRow = {}
-            tds.each((index, Element)=> {
+             const tds = $(Element).find("td")
+             const tableRow = {}
+             tds.each((index, Element)=> {
                 tableRow[titles[index]] = $(Element).text()
                 tableRow.push
                
 
             });
 
-            object.push(tableRow)
+             DataBase.push(tableRow)
 
         });
 
-        console.log(object);
+        console.log(DataBase);
 
     
     } catch (error) {
-        console.log(error, "No se encontro lo que deseabas.");
+        console.log( "No se encontro lo que deseabas.");
     }
     
 }

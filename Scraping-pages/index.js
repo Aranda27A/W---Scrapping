@@ -51,24 +51,26 @@ async function JobsScrappersFromPages() {
     
 }
 
-async function Content(job) {
+async function Content(url) {
 
   
-    const jobDescription = await axios.get("https://braigslist.vercel.app/" + job[1].url) 
+    const jobDescription = await axios.get("https://braigslist.vercel.app/" + url) 
     const $  = load(jobDescription.data)
     const Text =  $("div").text()
-    return Text
-
-
-     
+    return Text    
 }
 
 
 async function Main() {
     const AllJobs = await JobsScrappersFromPages()
-    return console.log(AllJobs);
+
+for (const job of AllJobs){
+    const content = await Content(job.url);
+    job.content = content
+}
+ console.log(AllJobs);
+ return AllJobs
 
     
 }
-
-JobsScrappersFromPages()
+Main()

@@ -1,8 +1,9 @@
 import axios, { all } from "axios";
 import { load } from "cheerio";
-import { randomBytes } from "crypto";
 import fs from "fs"
-import { text } from "stream/consumers";
+
+
+
 
 
 async function JobsScrappersFromPages() {
@@ -10,40 +11,50 @@ async function JobsScrappersFromPages() {
     try{
         const AllJobs = []
         for (let i = 1; i < 14; i++) {
-    
-            
 
-        const Extract = await axios.get(`https://braigslist.vercel.app/jobs/${i}/`)
-        const html = Extract.data
+            const Extract = await axios.get(`https://braigslist.vercel.app/jobs/${i}/`)
+            const html = Extract.data
 
-        fs.writeFileSync("./extract.html" ,  html)
-        const $ = load(html)
+           await timeWait(3000)
+            fs.writeFileSync("./extract.html" ,  html)
+            const $ = load(html)
         
-        // $(".title-blob > a").each((Number, Element)=> {
-           
-        //    const Titulo = $(Element).text()
-        //    const url = $(Element).attr("href")
-        //    const json = {Number, Titulo, url}
-        //    console.log(json);
-        // })
+        
+            // $(".title-blob > a").each((Number, Element)=> {
+            
+            //        const Titulo = $(Element).text()
+            //        const url = $(Element).attr("href")
+            //        const content = await Content(url) 
+            //         return  {Number, Titulo, url, content}
+            //       
+            // });
 
         //Ahora con .map para ver esa funcionalidad.
         
-        const json = $(".title-blob > a").map((Number, Element)=> {
+            const json = await Promise.all( 
+                        $(".title-blob > a").map( async(Number, Element)=> {
            
-            const Titulo = $(Element).text()
-            const url = $(Element).attr("href")
-             const content = Content(url)
-            return {Number, Titulo, url,content}
+                        const Titulo = $(Element).text()
+                        const url = $(Element).attr("href")
+                        const content = await  Content(url)        /// Es necesario un await para que no regrese una promise.
+       
+                        return {Number, Titulo, url,content}
+          
 
-         }).get();
+                        }).get() 
+                        
+           );
 
+   
          AllJobs.push(...json)
+         console.log('Page Scrapped: ' + i);
     
         };
-
-      console.log(AllJobs); 
-        return AllJobs;
+        
+          
+     console.log(AllJobs);
+     return AllJobs;
+      
 
     }catch(error){
         console.log( "Error to find" , error);
@@ -56,21 +67,21 @@ async function Content(url) {
   
     const jobDescription = await axios.get("https://braigslist.vercel.app/" + url) 
     const $  = load(jobDescription.data)
-    const Text =  $("div").text()
+    const Text =  $("div").text() 
     return Text    
+    
 }
 
+const  timeWait = (ms) => new Promise((r) => {
+    setTimeout(r, ms)
+});
 
 async function Main() {
     const AllJobs = await JobsScrappersFromPages()
 
-for (const job of AllJobs){
-    const content = await Content(job.url);
-    job.content = content
-}
- console.log(AllJobs);
- return AllJobs
+  return AllJobs
 
-    
+   
 }
+
 Main()

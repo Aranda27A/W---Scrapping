@@ -1,6 +1,4 @@
 import fs from "fs"
-import { url } from "inspector";
-import { title } from "process";
 import puppeteer from "puppeteer";
 
 
@@ -25,12 +23,15 @@ async function Main () {
             }))
           );
 
+   const meta = await page.$$eval(".meta span[title]", elements => elements.map(el => ({date: el.getAttribute("title")})));
+
   // Show list of titles
   listings.forEach((post, i) => {
     console.log(`${i + 1}. ${post.title} `);
   });
   //Show The objects 
   console.log(listings);
+  console.log(meta);
            
       };
     

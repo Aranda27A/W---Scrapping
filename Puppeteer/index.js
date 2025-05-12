@@ -13,6 +13,7 @@ async function Main () {
         
         //Important noticing that needs to wait until finds the selector
         await page.waitForSelector("a.posting-title");
+        await page.waitForSelector(".meta span[title]");
 
        // Extract titeles in a array
    const listings = await page.$$eval("a.posting-title", elements =>
@@ -23,15 +24,15 @@ async function Main () {
             }))
           );
 
-   const meta = await page.$$eval(".meta span[title]", elements => elements.map(el => ({date: el.getAttribute("title")})));
+   const meta = await page.$$eval(".meta span[title]", elements => elements.map(el =>  el.getAttribute("title")));
 
-  // Show list of titles
+  // add dates to listings
   listings.forEach((post, i) => {
-    console.log(`${i + 1}. ${post.title} `);
+    post.date = meta[i]
   });
   //Show The objects 
   console.log(listings);
-  console.log(meta);
+ 
            
       };
     

@@ -19,7 +19,7 @@ async function JobsScrappersFromPages() {
             fs.writeFileSync("./extract.html" ,  html)
             const $ = load(html)
         
-        
+        //Aqui se obtiene uno por uno con each de cheerio (Parecido a jquery  )
             // $(".title-blob > a").each((Number, Element)=> {
             
             //        const Titulo = $(Element).text()
@@ -41,7 +41,7 @@ async function JobsScrappersFromPages() {
                         return {Number, Titulo, url,content}
           
 
-                        }).get() 
+                        }).get() //Always use get cuando hacemos map een cheerio
                         
            );
 

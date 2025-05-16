@@ -49,41 +49,71 @@ async function Main () {
               
                 // referal sentences to a salary
                 const salaryPhrases = [
-                  'To be discussed',
-                  'to be determined',
-                  'TBD',
-                  'Salary depends on experience',
-                  'To be discussed.',
-                  'Hourly Rate',``
-                  'Based on Skills and Experience',
-                  '(based on eligibility)',
-                  'on call',
-                  'Entry Level',
-                  'Commensurate with Experience',
-                  'Negotiable',
-                  'Negotiable Competitive compensation', 
-                  'depends on experience',
-                  'depends on expirience level',
-                  'Hourly and incentive',
-                  'Based on Skills and Experience',
-                  'competitive',
-                  'based on experience',
-                  'based on skills',
-                  'Open Discusssion / Open Negotiation',
-                  'competitive compensation',
-                  'commensurate with experience',
-                  'open discussion',
-                  'doe', 
-                  'call for info',
-                  'inquire',
-                  'will be discussed',
-                  'salary depends',
-                ];
-
-                const isExplicit = salaryPatterns.some(p => p.test(text));
+      
+           '$20 an hour',
+           'Entry Level',
+           '$20 + based on experience',
+           'Hourly Rate',
+           'call for info',
+           '$55 TO $65 PER HOUR',
+           '17.00 per hour',
+           'Will be discussed',
+           'from $55,000 to $85,000/Year depend on ...',
+           'Competitive',
+           'Payroll',
+           '$55 TO $65 PER HOUR',
+           '$25/hour + Bonus + Sales Commission - N...',
+           'To be discussed.',
+           'To be discussed.',
+           'To be discussed.',
+           'To be discussed.',
+           'Competitive Compensation',
+           '70K to 90K based on experience',
+           'Based on Skills and Experience',
+           'depends on expirience level',
+           'on call',
+           'Negotiatable',
+           'To be determined',
+           '$22.00-$30.00/hr',
+           'Open Discusssion / Open Negotiation',
+           'competitive',
+           'Based on Experience',
+           '$400 Cash for day',
+           'We will pay by the hour of service need...',
+           'Inquire',
+           'Negotiable Competitive compensation',
+           'starting from $23',
+           'DoE',
+           'To be discussed.',
+           'Full time Position, Salary, Benefits, 4...',
+           '$50,00 and up (depending on experience)',
+           'Negotiable',
+           'Commensurate with Experience',
+           '$600 - $1K+ Weekly',
+           'TBD; based on experience',
+           'TBD',
+           'To be discussed.',
+           'To be discussed.',
+           'To be discussed.',
+           'TBD',
+           'Salary depends on experience',
+           '$25-35 per hour',
+           '$30.00 to 35.00 an hour. DOE',
+           'To be discussed.',
+           'Starting at $25/hour Negotiable with ex...',
+           'Hourly and incentive',
+           'Up to $1574 (Based on eligibility)',
+           'Up to $1574 (Based on eligibility)',
+           'Up to $1,125 (based on eligibility)',
+           'Up to $1,237 (based on eligibility)',
+           'Based on Skills and Experience'
+    ]
+                  const isExplicit = salaryPatterns.some(p => p.test(text));
                 const isImplicit = salaryPhrases.some(p => text.includes(p));
 
                   return (isExplicit || isImplicit );
+
+              
                  }
 
      

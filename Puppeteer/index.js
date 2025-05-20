@@ -2,14 +2,10 @@ import fs from "fs"
 import puppeteer from "puppeteer";
 
 
-async function Main () { 
-   
-        const browser =  await puppeteer.launch({headless: false});
-        const page = await browser.newPage();
-        await page.goto("https://newyork.craigslist.org/search/tch#search=2~thumb~0")
-      
-        const html = await page.content();
-        fs.writeFileSync("./extract.html" , html)
+async function ScrapingInfo (page) {
+
+
+       
         
         //Important noticing that needs to wait until finds the selector
         await page.waitForSelector("a.posting-title");
@@ -27,16 +23,15 @@ async function Main () {
             }))
           );
 
+
    const meta = await page.$$eval(".meta span[title]", elements => elements.map(el =>  el.getAttribute("title")));
 
-
-  
 
    const metaHours = await page.$$eval(".meta", elements => {
 
       function keypatters(text) {
 
-    //Regular expressions to filter
+           //Regular expressions to filter
                 const salaryPatterns = [
                   /\$\s?\d[\d,]*(\.\d+)?/,                                 // $20, $70,000.00
                   /\d{2,3}k(\s?[-to–]\s?\d{2,3}k)?/,                       // 70k, 70K to 90K
@@ -137,17 +132,40 @@ async function Main () {
   });
   //Show The objects 
   
-  console.log(listings);
+  return listings
 
-  await browser.close()
+ 
  
            
-      };
+};
+
+async function scrapeDescription(listings, page) {
+  for (let i = 0; i < listings.length; i++) {
+    await page.goto(listings[i].url)
+    const content = await page.content()
+
+
     
 
     
-   
+  }
+ 
+}
     
 
+  async function Main() {
+      const browser =  await puppeteer.launch({headless: false});
+        const page = await browser.newPage();       
+         await page.goto("https://newyork.craigslist.org/search/tch#search=2~thumb~0")
+
+      
+        const listings = await  ScrapingInfo(page)
+        const Content = await scrapeDescription(listings,page)
+
+        console.log(listings, Content);
+
+    
+  } 
+    
 
 Main()

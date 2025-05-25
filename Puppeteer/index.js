@@ -1,7 +1,13 @@
-import fs from "fs"
+
+
+
+/// Code based on web scrapping where we re getting objects with the information relevant.
+
+
 import puppeteer from "puppeteer";
 
-
+const  timeWait = (ms) => new Promise((r) => {  setTimeout(r, ms) })
+    
 async function ScrapingInfo (page) {
 
 
@@ -13,7 +19,7 @@ async function ScrapingInfo (page) {
         await page.waitForSelector(".meta span[title]");
        
 
-       // Extract titeles in a array
+       // Extraction of title and url of the job position and forming the base object
    const listings = await page.$$eval("a.posting-title", elements =>
             elements.map(el => ({
               title: el.innerText.trim(), 
@@ -23,13 +29,13 @@ async function ScrapingInfo (page) {
             }))
           );
 
+          /// Function to get the date of posting, it was in a span called title, and we extract the attribute
+   const metaDate = await page.$$eval(".meta span[title]", elements => elements.map(el =>  el.getAttribute("title")));
 
-   const meta = await page.$$eval(".meta span[title]", elements => elements.map(el =>  el.getAttribute("title")));
-
-
+          /// Function to get the payment information, where we have keypatterns to help to get the accurate inforamtion
    const metaHours = await page.$$eval(".meta", elements => {
 
-      function keypatters(text) {
+        function keypatters(text) {
 
            //Regular expressions to filter
                 const salaryPatterns = [
@@ -109,28 +115,32 @@ async function ScrapingInfo (page) {
                   return (isExplicit || isImplicit );
 
               
-                 }
+                     }
 
-     
-     const payroll = [];
-     elements.forEach(el => {
-       el.childNodes.forEach(node => {
-         if (node.nodeType === Node.TEXT_NODE) {
-           const text = node.textContent.trim();
-           if (keypatters(text)){ payroll.push(text);} 
-         }
-       });
-     });
 
-  return payroll; // o `return payroll` si querés todos
-});
+               const payroll = [];
+               elements.forEach(el => {
+                 el.childNodes.forEach(node => {
+                   if (node.nodeType === Node.TEXT_NODE) {
+                     const text = node.textContent.trim();
+                     if (keypatters(text)){ payroll.push(text);} 
+                   }
+                 });
+               });
+             console.log(payroll);
+               return payroll; // o `return payroll` si querés todos
+              });
 
-  // add dates to listings
+  // Listings is our base array were our objects for each job page are, we add dates and  
   listings.forEach((post, i) => {
-    post.date = meta[i]
+    post.date = metaDate[i]
     post.Payroll = metaHours[i]
+
+ 
   });
   //Show The objects 
+
+
   
   return listings
 
@@ -139,18 +149,27 @@ async function ScrapingInfo (page) {
            
 };
 
-async function scrapeDescription(listings, page) {
-  for (let i = 0; i < listings.length; i++) {
-    await page.goto(listings[i].url)
-    const content = await page.content()
+async function scrapeContent(listings, page) {
 
+ const PaginaCompleta = {}
+  
+     await  timeWait(3000)
 
+    await page.goto(listings.url)
     
-
+    await page.waitForSelector("#titletextonly");
+  
+   const  title = await page.$eval('#titletextonly', elements => elements.textContent.trim()) 
+   const longText = await page.$eval('#postingbody', elements => elements.textContent.trim())
+   
+   
+    PaginaCompleta.title = title
+    PaginaCompleta.longText = longText
     
-  }
- 
+  console.log(PaginaCompleta);
+ return PaginaCompleta
 }
+
     
 
   async function Main() {
@@ -160,9 +179,17 @@ async function scrapeDescription(listings, page) {
 
       
         const listings = await  ScrapingInfo(page)
-        const Content = await scrapeDescription(listings,page)
+        
+        for (const element of listings) {
+          try {
+            element.content = await scrapeContent(element, page)
 
-        console.log(listings, Content);
+          }catch (error){
+            console.log(error, "Couldnt reach");
+          }
+        }
+
+        console.log(listings)
 
     
   } 

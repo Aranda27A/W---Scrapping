@@ -5,6 +5,14 @@
 
 
 import puppeteer from "puppeteer";
+import mongoose from "mongoose";
+import listingsModel from "./shcema.js";
+
+
+async function ConnectToMongoDb() {
+    await mongoose.connect("mongodb+srv://AbrahamAranda:Kenya2012@cluster1.rhpxxxo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1" )
+}   
+
 
 const  timeWait = (ms) => new Promise((r) => {  setTimeout(r, ms) })
     
@@ -14,18 +22,18 @@ async function ScrapingInfo (page) {
        
         
         //Important noticing that needs to wait until finds the selector
-        await page.waitForSelector("a.posting-title");
-         await page.waitForSelector(".meta");
-        await page.waitForSelector(".meta span[title]");
+   await page.waitForSelector("a.posting-title");
+   await page.waitForSelector(".meta");
+   await page.waitForSelector(".meta span[title]");
        
 
        // Extraction of title and url of the job position and forming the base object
    const listings = await page.$$eval("a.posting-title", elements =>
             elements.map(el => ({
+
               title: el.innerText.trim(), 
               url: el.href
 
-            
             }))
           );
 
@@ -127,69 +135,70 @@ async function ScrapingInfo (page) {
                    }
                  });
                });
-             console.log(payroll);
+            
                return payroll; // o `return payroll` si querés todos
               });
 
   // Listings is our base array were our objects for each job page are, we add dates and  
-  listings.forEach((post, i) => {
-    post.date = metaDate[i]
-    post.Payroll = metaHours[i]
+    listings.forEach((post, i) => {
+      post.date = metaDate[i]
+      post.Payroll = metaHours[i]
 
- 
-  });
+    
+    });
   //Show The objects 
-
-
-  
-  return listings
-
- 
- 
-           
+  console.log(listings);
+  return listings        
 };
 
 async function scrapeContent(listings, page) {
 
  const PaginaCompleta = {}
   
-     await  timeWait(3000)
+   await  timeWait(3000)
 
-    await page.goto(listings.url)
+   await page.goto(listings.url)
     
-    await page.waitForSelector("#titletextonly");
+   await page.waitForSelector("#titletextonly");
   
    const  title = await page.$eval('#titletextonly', elements => elements.textContent.trim()) 
    const longText = await page.$eval('#postingbody', elements => elements.textContent.trim())
    
    
-    PaginaCompleta.title = title
-    PaginaCompleta.longText = longText
+   PaginaCompleta.title = title
+   PaginaCompleta.body = longText
     
-  console.log(PaginaCompleta);
+   console.log(PaginaCompleta);
+   
  return PaginaCompleta
+
 }
 
-    
-
   async function Main() {
+      await ConnectToMongoDb()
       const browser =  await puppeteer.launch({headless: false});
-        const page = await browser.newPage();       
-         await page.goto("https://newyork.craigslist.org/search/tch#search=2~thumb~0")
+      const page = await browser.newPage();       
+      await page.goto("https://newyork.craigslist.org/search/tch#search=2~thumb~0")
 
       
-        const listings = await  ScrapingInfo(page)
+      const listingsEnd = await  ScrapingInfo(page)
         
-        for (const element of listings) {
+        for (const element of listingsEnd) {
           try {
             element.content = await scrapeContent(element, page)
+            const DatabaseModel = new listingsModel(element)
+            await DatabaseModel.save();
 
           }catch (error){
             console.log(error, "Couldnt reach");
           }
         }
 
-        console.log(listings)
+       
+
+        console.log(listingsEnd)
+
+        browser.close()
 
     
   } 

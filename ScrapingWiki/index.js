@@ -1,5 +1,7 @@
 import axios from "axios";
 import {load} from "cheerio"
+import fs from "fs"
+import { Parser } from "json2csv";
 
 async function Scrape() {
 
@@ -42,7 +44,7 @@ async function Scrape() {
          structureList.push( {number,name, height, floors,city, country})
         }else{
          
-        const number =  lastNumber
+        const number = i
         const name =  $(column[0]).text().trim()
         const height =  lastHeight
         const floors = lastFloor
@@ -61,7 +63,11 @@ async function Scrape() {
     })
         
 console.log(structureList);
-    
+
+const parser = new Parser();
+const csv = parser.parse(structureList)
+fs.writeFileSync('Bulidngs.csv',csv);
+console.log("Exportado el csv");
 }
 
 Scrape()

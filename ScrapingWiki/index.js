@@ -12,6 +12,9 @@ async function Scrape() {
     const structureList = []
     
     let lastNumber = '';
+    let lastName = ''
+    let lastHeight = ''
+    let lastFloor = ''
     let lastCity = '';
     let lastCountry = '';
     
@@ -20,19 +23,41 @@ async function Scrape() {
         const column = $(row).find("td")
 
         if (column.length === 0) return;
-        const number = $(column[0]).text() || lastNumber
-        const name = $(column[1]).find("a").text().trim()
-        const height = $(column[2]).text().trim()
-        const floors = $(column[4]).text().trim()
-        const city = $(column[6]).text().trim()
-        const country = $(column[7]).find("a").text()
 
-   if ($(column[0]).text().trim()) return lastNumber = number;
-        if ($(column[6]).text().trim()) return lastCity = city;
-        if ($(column[7]).find("a").text().trim()) return lastCountry = country;
+        if (column.length > 1){
+        const number = $(column[0]).text().trim() || lastNumber
+        const name = $(column[1]).find("a").text().trim() ||$(column[1]).text().trim() || lastName
+        const height = $(column[2]).text().trim() || lastHeight
+        const floors = $(column[4]).text().trim() || lastFloor
+        const city = $(column[6]).text().trim() || lastCity
+        const country = $(column[7]).find("a").text() || lastCountry
+         
+        if ($(column[0]).text().trim())  lastNumber = number;
+        if ($(column[1]).text().trim())  lastName = name;
+        if ($(column[2]).text().trim())  lastHeight = height;
+        if ($(column[4]).text().trim())  lastFloor = floors;
+        if ($(column[6]).text().trim())  lastCity = city;
+        if ($(column[7]).find("a").text().trim())  lastCountry = country;
+
+         structureList.push( {number,name, height, floors,city, country})
+        }else{
+         
+        const number =  lastNumber
+        const name =  $(column[0]).text().trim()
+        const height =  lastHeight
+        const floors = lastFloor
+        const city =  lastCity
+        const country = lastCountry
+         structureList.push( {number,name, height, floors,city, country})
+        
+        }
+        
+        
+
+       
 
 
-    structureList.push( {number,name, height, floors,city, country})
+   
     })
         
 console.log(structureList);

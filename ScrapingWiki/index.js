@@ -23,11 +23,10 @@ async function Scrape() {
      
     TablaBuildings.find("tbody tr").each((i, row) => {
         const column = $(row).find("td")
-
         if (column.length === 0) return;
 
         if (column.length > 1){
-        const number = $(column[0]).text().trim() || lastNumber
+        const number = i // skiping the order of the wiki table due mistakes taken by te code, choosing a clasicc order.    
         const name = $(column[1]).find("a").text().trim() ||$(column[1]).text().trim() || lastName
         const height = $(column[2]).text().trim() || lastHeight
         const floors = $(column[4]).text().trim() || lastFloor

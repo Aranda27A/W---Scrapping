@@ -13,7 +13,6 @@ async function Scrape() {
     const TablaBuildings = $(".sortable.wikitable").first()
     const structureList = []
     
-    let lastNumber = '';
     let lastName = ''
     let lastHeight = ''
     let lastFloor = ''

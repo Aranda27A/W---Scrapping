@@ -1,6 +1,8 @@
 import puppeteer from "puppeteer";
 import fs from "fs";
-import { url } from "inspector";
+import parse, { Parser } from "json2csv"
+import { error } from "console";
+
 
 
 async function WtrChek(page) {
@@ -39,7 +41,7 @@ async function WtrChek(page) {
 async function main() {
     const urls = ["https://www.tiempo.com/tel-aviv.htm" , 
 "https://www.tiempo.com/israel/tel-aviv/proxima-semana"  ]   
-    let Database = []
+  const Database = []
 
   const browser = await puppeteer.launch({ headless: true });
   const Meteored = await browser.newPage();
@@ -51,8 +53,8 @@ async function main() {
         await Meteored.goto(url, {waitUntil: "networkidle2",});
         const html = await Meteored.content();
         fs.writeFileSync("./Page.html", html);  
-        
-        Database.push(await WtrChek(Meteored))
+        const extractdata = await WtrChek(Meteored)
+        Database.push(...extractdata)
        
     }catch (error) {
   console.log("Error, no se pudo cargar la URL:", url);
@@ -60,15 +62,40 @@ async function main() {
     }
   }
 
-  const csvFormat = Database.map(arr => {
-    return arr.join(",")
-  })
-
-
   await browser.close()
-  return csvFormat
+   console.log(Database);
+   
+  try{
+    const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv"
+    const parse = new  Parser() 
+    const csv = parse.parse(Database)
+    fs.writeFileSync(`${Outdir}/14dayOfwheater.csv`,csv) 
+    console.log("Exportado con exito");
 
-    
+
+  }catch(error){
+    console.log(error, "Not possible get the CSV");
+  }
+
+  csvHistory(Database)
+
+}
+
+function csvHistory (DataBase){
+
+ const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv"
+ const DatabaseHistory = DataBase.map(({nombre , ...resto}  )=> resto)
+ 
+ try{
+    const parse = new Parser()
+    const csvHistory = parse.parse(DatabaseHistory)
+    fs.writeFileSync(`${Outdir}/Wheater History.csv`, csvHistory)
+    console.log("Second Csv exported")
+ } catch (error) {
+  console.log(error, "Unkwon error");
+ }
+
+
 }
 
 

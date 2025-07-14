@@ -1,16 +1,12 @@
-import puppeteer from "puppeteer";
-import fs from "fs";
-import parse, { Parser } from "json2csv"
-import { error } from "console";
+import puppeteer from "puppeteer";    //Base code for web scrapping, using task schedule of windows so is standard to run in the system                                       //
+import fs from "fs";                  //Follow all the steps, because is the base for future simples scrappings
+import { Parser } from "json2csv"     //On comments you can find some debugings
 
 
 
-async function WtrChek(page) {
+async function WtrChek(page) {  // Extract Data from 14 days
 
 
-
-
-  // Extraer datos de los días
   const dias = await page.$$eval("ul.dias_w > li.grid-item.dia", (elementos) => {
     return elementos.map((el) => {
       const nombre = el.querySelector(".text-0")?.innerText.trim();
@@ -38,67 +34,97 @@ async function WtrChek(page) {
 
 }
 
+
+
+
+
 async function main() {
-    const urls = ["https://www.tiempo.com/tel-aviv.htm" , 
-"https://www.tiempo.com/israel/tel-aviv/proxima-semana"  ]   
-  const Database = []
 
-  const browser = await puppeteer.launch({ headless: true });
-  const Meteored = await browser.newPage();
-
-
-  for (const url of urls) {
-
-    try{
-        await Meteored.goto(url, {waitUntil: "networkidle2",});
-        const html = await Meteored.content();
-        fs.writeFileSync("./Page.html", html);  
-        const extractdata = await WtrChek(Meteored)
-        Database.push(...extractdata)
-       
-    }catch (error) {
-  console.log("Error, no se pudo cargar la URL:", url);
-  console.error(error);
-    }
-  }
-
-  await browser.close()
-   console.log(Database);
-   
   try{
-    const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv"
-    const parse = new  Parser() 
-    const csv = parse.parse(Database)
-    fs.writeFileSync(`${Outdir}/14dayOfwheater.csv`,csv) 
-    console.log("Exportado con exito");
 
 
-  }catch(error){
-    console.log(error, "Not possible get the CSV");
+      const urls = ["https://www.tiempo.com/tel-aviv.htm" , 
+      "https://www.tiempo.com/israel/tel-aviv/proxima-semana"  ]    //In this particular case we extract with 2 urls, could be a differrent case.
+      const Database = []
+
+      const browser = await puppeteer.launch({ headless: true,});
+      const Meteored = await browser.newPage();
+
+
+      for (const url of urls) {
+
+        try{
+            await Meteored.goto(url, {waitUntil: "networkidle2",});
+            //const html = await Meteored.content();  ****here just in case you need to extract a html to see if your puppeter could get the data**
+            //fs.writeFileSync(`C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_html_task.html`, html); 
+            const extractdata = await WtrChek(Meteored) //Calling extract data function
+            Database.push(...extractdata) //we make one array from the 2 urls
+
+        }catch (error) {
+          console.log("Error, no se pudo cargar la URL:", url);
+          console.error(error);
+        }
+      }
+
+    await browser.close()
+    console.log(Database);
+
+      try{
+
+        const Outdir ="C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv/"
+        const parse = new  Parser() 
+        const csv = parse.parse(Database)
+      
+        fs.writeFileSync(Outdir + "14daysWheater.csv" ,csv) //To use task scheduler follow this format of writting
+        console.log("Exportado con exito");
+
+
+      }catch(error){
+        console.log(error, "Not possible get the CSV");
+      }
+
+    csvHistory(Database)
+    // fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/log.txt", `Ejecutado: ${new Date().toISOString()}`);
+   //***this debug was to see if is runed main function throught task manager */
+
+
+
+  }catch (error) {
+      console.error("CSV Export Error:", error.message, error.stack);
   }
-
-  csvHistory(Database)
-
 }
 
-function csvHistory (DataBase){
 
- const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv"
- const DatabaseHistory = DataBase.map(({nombre , ...resto}  )=> resto)
+
+
+
+
+
+
+function csvHistory (DataBase){  //Function for making the historial for temperatures adding information to a base docuement
+
+  // debuging---->  fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_data_Init.json", JSON.stringify(DataBase, null, 2));
+
+
+  const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv/"
+  const DatabaseHistory = DataBase.map(({nombre , ...resto}  )=> resto)
+
+  // debuging----> fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_export1.txt", "before parser");
+
+
  
  try{
-    const parse = new Parser()
-    const csvHistory = parse.parse(DatabaseHistory)
-    fs.writeFileSync(`${Outdir}/Wheater History.csv`, csvHistory)
+    
+    
+    const parser = new Parser()
+    const csvHistory = parser.parse(DatabaseHistory)
+    fs.writeFileSync(Outdir + "Wheater History.csv", csvHistory)
     console.log("Second Csv exported")
  } catch (error) {
   console.log(error, "Unkwon error");
  }
 
-
 }
-
-
 
 
 main()

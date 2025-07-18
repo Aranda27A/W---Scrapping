@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";    //Base code for web scrapping, using task schedule of windows so is standard to run in the system                                       //
 import fs from "fs";                  //Follow all the steps, because is the base for future simples scrappings
 import { Parser } from "json2csv"     //On comments you can find some debugings
-
+import {parse as csvParseSync} from "csv-parse/sync"
 
 
 async function WtrChek(page) {  // Extract Data from 14 days
@@ -84,7 +84,7 @@ async function main() {
       }
 
     csvHistory(Database)
-    // fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/log.txt", `Ejecutado: ${new Date().toISOString()}`);
+     fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/log.txt", `Succeded run to the date: ${new Date().toISOString()}`);
    //***this debug was to see if is runed main function throught task manager */
 
 
@@ -101,23 +101,43 @@ async function main() {
 
 
 
-function csvHistory (DataBase){  //Function for making the historial for temperatures adding information to a base docuement
+ function csvHistory (DataBase){  //Function for making the historial for temperatures adding information to a base docuement
 
   // debuging---->  fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_data_Init.json", JSON.stringify(DataBase, null, 2));
+    const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv/"
+    const HisotryPath = Outdir + "Wheater History.csv"
 
 
-  const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv/"
-  const DatabaseHistory = DataBase.map(({nombre , ...resto}  )=> resto)
+  const todayUpdateRecord = DataBase.map(({nombre , ...resto}  )=> resto) //No extraer los dias
 
   // debuging----> fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_export1.txt", "before parser");
+
+  let record = [];
+  if(fs.existsSync(HisotryPath)){
+    const fileContent = fs.readFileSync(HisotryPath, "utf8")
+
+           if (fileContent.length > 0) {
+            try {
+              record = csvParseSync(fileContent, {
+                columns: true,  
+                skip_empty_lines: true,
+              });
+            } catch (err) {
+              console.error("Error al parsear el historial existente:", err);
+            }
+   
+  }
+
+  const FullData = [...record, ...todayUpdateRecord]
+  const nonDuple = Array.from(new Map(FullData.map(i=>[i.fecha , i])).values());
 
 
  
  try{
-    
+
     
     const parser = new Parser()
-    const csvHistory = parser.parse(DatabaseHistory)
+    const csvHistory = parser.parse(nonDuple)
     fs.writeFileSync(Outdir + "Wheater History.csv", csvHistory)
     console.log("Second Csv exported")
  } catch (error) {
@@ -125,6 +145,6 @@ function csvHistory (DataBase){  //Function for making the historial for tempera
  }
 
 }
-
+}
 
 main()

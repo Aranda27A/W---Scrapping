@@ -1,8 +1,13 @@
-import puppeteer from "puppeteer";    //Base code for web scrapping, using task schedule of windows so is standard to run in the system                                       //
-import fs from "fs";                  //Follow all the steps, because is the base for future simples scrappings
-import { Parser } from "json2csv"     //On comments you can find some debugings
-import {parse as csvParseSync} from "csv-parse/sync"
 
+ //Base code for web scrapping, using task schedule of windows so is standard to run in the system   
+  //Follow all the steps, because is the base for future simples scrappings
+//On comments you can find some debugings
+
+import puppeteer from "puppeteer";                                       
+import fs from "fs";                 
+import { Parser } from "json2csv"     
+import {parse as csvParseSync} from "csv-parse/sync"
+import { exportToSpreed } from "./sheetsClient.js";
 
 async function WtrChek(page) {  // Extract Data from 14 days
 
@@ -33,6 +38,8 @@ async function WtrChek(page) {  // Extract Data from 14 days
  return dias
 
 }
+
+
 
 
 
@@ -84,6 +91,8 @@ async function main() {
       }
 
     csvHistory(Database)
+    await exportToSpreed(Database)
+
      fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/log.txt", `Succeded run to the date: ${new Date().toISOString()}`);
    //***this debug was to see if is runed main function throught task manager */
 
@@ -92,12 +101,15 @@ async function main() {
   }catch (error) {
       console.error("CSV Export Error:", error.message, error.stack);
   }
+
 }
 
 
 
 
 
+//This runs locally, so with this function you will obtain a CSV from a historial record. Reminder that a cloud running to have it on the cloud is applied 
+// at the sheetsClients.js
 
 
 

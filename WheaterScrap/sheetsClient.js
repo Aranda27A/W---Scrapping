@@ -5,7 +5,7 @@ import { google} from "googleapis";
 
 
 const auth = new google.auth.GoogleAuth({
-    keyFile: "./.env/wheater-scrapping-1fccc28470b2.json",
+    keyFile: "C:/Users/alex_/Escritorio/Aranda Coding/.secrets/wheater-scrapping-1fccc28470b2.json",
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 })
 

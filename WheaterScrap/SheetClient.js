@@ -53,11 +53,15 @@ export async function exportToSheet(data) {
     }
   });
 
-  const valuesToWrite = [
-    headers, 
-    ...combined.map(obj => headers.map(h => obj[h] || "" )),
-  ];
+  const headersToWrite = headers.filter(h => h !== "nombre");
 
+const valuesToWrite = [
+  headersToWrite,
+  ...combined.map(obj => {
+    const row = headersToWrite.map(h => obj[h] || "");
+    return row;
+})]
+  
 await sheets.spreadsheets.values.update({
   spreadsheetId,
   range: `${sheetName}!A1`,

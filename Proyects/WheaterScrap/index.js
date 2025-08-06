@@ -1,42 +1,9 @@
 import puppeteer from "puppeteer";    //Base code for web scrapping, using task schedule of windows so is standard to run in the system                                       //
 import fs from "fs";                  //Follow all the steps, because is the base for future simples scrappings
 import { Parser } from "json2csv"     //On comments you can find some debugings
-import {parse as csvParseSync} from "csv-parse/sync"
 import {exportToSheet} from "./SheetClient.js"
-
-
-async function WtrChek(page) {  // Extract Data from 14 days
-
-
-  const dias = await page.$$eval("ul.dias_w > li.grid-item.dia", (elementos) => {
-    return elementos.map((el) => {
-      const nombre = el.querySelector(".text-0")?.innerText.trim();
-      const fecha = el.querySelector(".subtitle-m")?.innerText.trim();
-      const tempMax = el.querySelector(".temp .max")?.innerText.trim();
-      const tempMin = el.querySelector(".temp .min")?.innerText.trim();
-      const descripcion = el.querySelector(".prediccion img.simbW")?.alt?.trim();
-
-      const vientoMin = el.querySelector(".velocidad .changeUnitW")?.innerText.trim();
-      const vientoMax = el.querySelectorAll(".velocidad .changeUnitW")[1]?.innerText.trim();
-
-      return {
-        nombre,
-        fecha,
-        tempMax,
-        tempMin,
-        descripcion,
-        vientoMin,
-        vientoMax,
-      };
-    });
-  });
-
- return dias
-
-}
-
-
-
+import {WtrChek} from "./scrapper.js"
+import {csvHistory} from "./csvHistory.js"
 
 
 async function main() {
@@ -72,7 +39,7 @@ async function main() {
 
       try{
 
-        const Outdir ="C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv/"
+        const Outdir ="C:/Users/alex_/Escritorio/Aranda Coding/scrapping/Proyects/WheaterScrap/csv/"
         const parse = new  Parser() 
         const csv = parse.parse(Database)
       
@@ -88,7 +55,7 @@ async function main() {
     await exportToSheet(Database)
 
     
-     fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/log.txt", `Succeded run to the date: ${new Date().toISOString()}`);
+     fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/Proyects/WheaterScrap/log.txt", `Succeded run to the date: ${new Date().toISOString()}`);
    //***this debug was to see if is runed main function throught task manager */
 
 
@@ -100,55 +67,8 @@ async function main() {
 
 
 
-
-
-
-
-
- function csvHistory (DataBase){  //Function for making the historial for temperatures adding information to a base docuement
-
-  // debuging---->  fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_data_Init.json", JSON.stringify(DataBase, null, 2));
-    const Outdir = "C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/csv/"
-    const HisotryPath = Outdir + "Wheater History.csv"
-
-
-  const todayUpdateRecord = DataBase.map(({nombre , ...resto}  )=> resto) //No extraer los dias
-
-  // debuging----> fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_export1.txt", "before parser");
-
-  let record = [];
-  if(fs.existsSync(HisotryPath)){
-    const fileContent = fs.readFileSync(HisotryPath, "utf8")
-
-           if (fileContent.length > 0) {
-            try {
-              record = csvParseSync(fileContent, {
-                columns: true,  
-                skip_empty_lines: true,
-              });
-            } catch (err) {
-              console.error("Error al parsear el historial existente:", err);
-            }
-   
-  }
-
-  const FullData = [...record, ...todayUpdateRecord]
-  const nonDuple = Array.from(new Map(FullData.map(i=>[i.fecha , i])).values());
-
-
- 
- try{
-
-    
-    const parser = new Parser()
-    const csvHistory = parser.parse(nonDuple)
-    fs.writeFileSync(Outdir + "Wheater History.csv", csvHistory)
-    console.log("Second Csv exported")
- } catch (error) {
-  console.log(error, "Unkwon error");
- }
-
-}
-}
-
 main()
+
+
+
+

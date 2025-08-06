@@ -1,8 +1,6 @@
 // sheetsClient.js
 
 import {google} from "googleapis"
-import path from "path"
-import { fileURLToPath } from "url";
 
 // Simular __dirname en ESM
 

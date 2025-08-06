@@ -16,8 +16,8 @@ import fs from "fs"
 
   // debuging----> fs.writeFileSync("C:/Users/alex_/Escritorio/Aranda Coding/scrapping/WheaterScrap/debug_export1.txt", "before parser");
 
-  let record = [];
-  if(fs.existsSync(HisotryPath)){
+   let record = [];
+   if(fs.existsSync(HisotryPath)){
     const fileContent = fs.readFileSync(HisotryPath, "utf8")
 
            if (fileContent.length > 0) {
@@ -27,28 +27,27 @@ import fs from "fs"
                 skip_empty_lines: true,
               });
             } catch (err) {
-              console.error("Error al parsear el historial existente:", err);
+              console.error("Error to parse hisotry:", err);
             }
    
-  }
+           };
 
-  const FullData = [...record, ...todayUpdateRecord]
-  const nonDuple = Array.from(new Map(FullData.map(i=>[i.fecha , i])).values());
+   const FullData = [...record, ...todayUpdateRecord]
+   const nonDuple = Array.from(new Map(FullData.map(i=>[i.fecha , i])).values());
 
 
  
- try{
+  try{
 
     
     const parser = new Parser()
     const csvHistory = parser.parse(nonDuple)
     fs.writeFileSync(Outdir + "Wheater History.csv", csvHistory)
     console.log("Second Csv exported")
- } catch (error) {
+  } catch (error) {
   console.log(error, "Unkwon error");
- }
+  }
 
-}
-}
+}};
 
 

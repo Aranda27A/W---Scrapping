@@ -2,7 +2,7 @@ import axios from "axios";
 import {load} from "cheerio"
 import fs from "fs"
 import { Parser } from "json2csv";
-
+            
 async function Scrape() {
 
     const page = await axios.get("https://en.wikipedia.org/wiki/List_of_tallest_buildings")
